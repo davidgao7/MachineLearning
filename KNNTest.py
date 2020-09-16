@@ -34,6 +34,7 @@ class KNN_Classifier:
     def predict(self, X):  # X numpy 1 dimensional array
         samplept = X[0]
         distance = np.zeros((len(X), 2))
+        neighbors = np.array([])
 
         for i in range(len(X)):
             # calculate distance
@@ -67,7 +68,6 @@ def testKNN():
     Knn = KNN_Classifier()
     # train:
     Knn.fit(a, b, 3, 'uniform')
-    print("x input for prediction: %s" % c)
     neighbors = Knn.predict(c)
     print(neighbors)
 
