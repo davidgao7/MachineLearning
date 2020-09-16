@@ -1,6 +1,9 @@
-<<<<<<< HEAD
-
-.ipynb_checkpoints/HW1_wineQuality-checkpoint.ipynb
-=======
+.ipynb_checkpoints/
 ./venv
->>>>>>> 7b00c83babfb017cda9a99fde4b8c1f1c6d07c46
+KNNTest.py
+sFoldTest.py
+HW1_wineQuality.ipynb
+.idea/
+.vscode/
+__pycache__/
+venv/
