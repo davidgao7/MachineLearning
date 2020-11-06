@@ -57,14 +57,13 @@ class Linear_SVC:
         costarray = []
 
         self.findSV()  # (xs,ys)
-        J_0 = self.cost(self.sv)
-        costarray.append(J_0)
+        costarray.append(math.inf)
 
         for i in range(0, self.max_iter):
             if self.learning_rate_type == 'adaptive':
                 self.learning_rate = self.t_0 / (self.max_iter + self.t_1)
 
-            if i > 0 and costarray[i] < costarray[i - 1] - self.tol:
+            if i > 0 and costarray[i] > costarray[i - 1] - self.tol:
                 break
 
             dw_J = self.C * np.sum(self.sv['X'])  # float
@@ -73,29 +72,36 @@ class Linear_SVC:
             delta_w = self.w - sumX
             db_J = np.ones(X[0].shape)
             db_J.fill(-1 * self.C * np.sum(
-                self.sv['label']))  # TODO: J * label=0 will be 0, I think label has to be +1/-1 not +1/0
+                self.sv['label']))
             self.w = self.w - self.learning_rate * delta_w
             self.b = self.b - self.learning_rate * db_J
             self.findSV()
-            cost = self.cost(self.sv)
+            cost = np.sum(self.cost(self.sv))
             costarray.append(cost)
 
-    def isSV(self, Y, X):
-        val = (X.dot(self.w) + self.b) * Y
+    # def isSV(self, Y, X):
+    #     val = (X.dot(self.w) + self.b) * Y
 
-        # one = np.ones(val.shape)
-        # zero = np.zeros(val.shape)
-        # greaterOne = np.greater_equal(val, one)
-        # lessZero = np.less_equal(val, zero)
-        # if np.all(greaterOne) or np.all(lessZero):  # is the support vectors
-        #     return True
-        # else:
-        #     return False
+    # one = np.ones(val.shape)
+    # zero = np.zeros(val.shape)
+    # greaterOne = np.greater_equal(val, one)
+    # lessZero = np.less_equal(val, zero)
+    # if np.all(greaterOne) or np.all(lessZero):  # is the support vectors
+    #     return True
+    # else:
+    #     return False
 
     def findSV(self):
-        val = (((self.X.dot(self.w) + self.b) * self.Y) < 1).ravel()  # find each val <1 and create index for those
-        self.sv['X'] = self.X[val]  # get the index with true
-        self.sv['Y'] = self.Y[val]
+        w = self.w.reshape((2, 1))
+        # dotProduct = self.Y, self.X
+        for i in range(len(self.X)):
+            self.X[i] = self.Y[i] * self.X[i]
+        result = np.dot(self.X, w)
+        val = np.where(result < 1)  # find each val <1 and create index for those
+
+        self.sv['X'] = self.X[val[0]]  # get the index with true
+        self.sv['Y'] = self.Y[val[0]]
+
     # def findSV(self):
     #     for i in range(0, len(self.X)):
     #         if self.isSV(self.Y[i], self.X[i]):
@@ -128,7 +134,7 @@ class Linear_SVC:
 
     def cost(self, sv):
 
-        return 0.5 * self.w.T.dot(self.w)  + self.C * (
+        return 0.5 * self.w.T.dot(self.w) + self.C * (
                 np.sum(1 - sv['X'].dot(self.w)) - self.b * np.sum(sv['label']))
 
 
