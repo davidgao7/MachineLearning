@@ -2,6 +2,88 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 import numpy as np
 import math
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+
+
+def getPrecision(n_tp, n_fp):
+    # accuacy of the positive predictions
+    # percentage of true positives
+    if n_tp + n_fp == 0:
+        return 0
+    pr = n_tp / (n_tp + n_fp)
+    return pr
+
+
+def getRecall(n_tp, n_fn):
+    # (+) instance correctly detected by classifier
+    if n_tp + n_fn == 0:
+        return 0
+    rc = n_tp / (n_tp + n_fn)
+    return rc
+
+
+def getFoneScore(n_tp, n_fn, n_fp):
+    # performance score: harmonic mean(调和平均数) of precision and recall
+    if n_tp + (n_fn + n_fp) / 2 == 0:
+        return 0
+    F_1 = n_tp / (n_tp + (n_fn + n_fp) / 2)
+    return F_1
+
+
+def getROC(TP_rate, FP_rate):
+    plt.plot(FP_rate, TP_rate)
+    plt.ylabel('True Positive rate')
+    plt.xlabel('False Positive rate')
+    for i_x, i_y in zip(TP_rate, FP_rate):
+        plt.text(i_x, i_y, '({:.3f},{:.3f})'.format(i_x, i_y))
+    plt.show()
+
+
+def createCFmatrix(actual, predictions):
+    actualNoPredictedNo = 0
+    actualNoPredictedYes = 0
+    actualYesPredictedNo = 0
+    actualYesPredictedYes = 0
+
+    if len(predictions) != len(actual):
+        print("missing pair outputs: # predictions not corresponding # actual output!\n")
+    for i in range(len(predictions)):
+        if actual[i] == -1 and predictions[i] == -1:
+            actualNoPredictedNo += 1
+        if actual[i] == -1 and predictions[i] == 1:
+            actualNoPredictedYes += 1
+        if actual[i] == 1 and predictions[i] == -1:
+            actualYesPredictedNo += 1
+        if actual[i] == 1 and predictions[i] == 1:
+            actualYesPredictedYes += 1
+
+    return actualNoPredictedNo, actualNoPredictedYes, actualYesPredictedNo, actualYesPredictedYes
+
+
+def getAccuacy_and_GenError(total_predicts, yes, no):
+    accuracy = (yes + no) / total_predicts
+    generror = 1 - accuracy
+    return accuracy, generror
+
+
+def integralAUC_ROC(FP_rate1, FP_rate2, TP_rate):
+    area = 0
+    for i in range(FP_rate1, FP_rate2 + 1):
+        # rectangle area
+        area += TP_rate[i]
+    return area
+
+
+def getPrecisionRecall_curve(precision, recall):
+    plt.plot(precision, recall)
+    plt.xlabel('precision')
+    plt.ylabel('recall')
+    for i_x, i_y in zip(precision, recall):
+        plt.text(i_x, i_y, '({:.3f},{:.3f})'.format(i_x, i_y))
+    plt.show()
 
 
 # model code
@@ -36,14 +118,14 @@ class Linear_SVC:
     print total iterations in the end
     '''
 
-    def fit(self, X, Y):
-        self.w = np.zeros((X.shape[1],))
+    def fit(self, X, Y):  # DO NOT TOUCH, WORKS
+        self.w = np.zeros((X.shape[1],))  # zeros
         self.b = 0  # intercept/bias: (n,)
         self.X = X  # (n,m) | n samples (24,2)
         self.Y = Y  # (n,1) (24,) # 2 type of iris: Iris-Virginica(1) and others(0)
         self.sv = {
-            'X': np.empty((1, len(self.X[1]))),  # X (m,2)
-            'label': np.empty(1)
+            'X': np.array([[math.inf], [math.inf]]),  # X (m,2)
+            'Y': np.array([math.inf])
         }
 
         if self.early_stopping:
@@ -59,67 +141,22 @@ class Linear_SVC:
         self.findSV()  # (xs,ys)
         costarray.append(math.inf)
 
-        for i in range(0, self.max_iter):
-            if self.learning_rate_type == 'adaptive':
-                self.learning_rate = self.t_0 / (self.max_iter + self.t_1)
-
-            if i > 0 and costarray[i] > costarray[i - 1] - self.tol:
-                break
-
-            dw_J = self.C * np.sum(self.sv['X'])  # float
-            sumX = np.ones((len(self.w),))
-            sumX.fill(dw_J)
-            delta_w = self.w - sumX
-            db_J = np.ones(X[0].shape)
-            db_J.fill(-1 * self.C * np.sum(
-                self.sv['label']))
-            self.w = self.w - self.learning_rate * delta_w
-            self.b = self.b - self.learning_rate * db_J
+        for i in range(0, self.max_iter):  # for loop works, do not touch
             self.findSV()
             cost = np.sum(self.cost(self.sv))
+            dw_J = np.subtract(self.w, self.C * np.sum(self.sv['X'], axis=0))
+            db_J = -self.C * np.sum(self.sv['Y'])
+            self.w -= self.learning_rate * dw_J
+            self.b -= self.learning_rate * db_J
+
             costarray.append(cost)
 
-    # def isSV(self, Y, X):
-    #     val = (X.dot(self.w) + self.b) * Y
+    def findSV(self):  # DO NOT TOUCH, WORKS
+        idx = (((self.X.dot(self.w) + self.b) * self.Y) < 1).ravel()
+        self.sv['X'] = self.X[idx]
+        self.sv['Y'] = self.Y[idx]
 
-    # one = np.ones(val.shape)
-    # zero = np.zeros(val.shape)
-    # greaterOne = np.greater_equal(val, one)
-    # lessZero = np.less_equal(val, zero)
-    # if np.all(greaterOne) or np.all(lessZero):  # is the support vectors
-    #     return True
-    # else:
-    #     return False
-
-    def findSV(self):
-        w = self.w.reshape((2, 1))
-        # dotProduct = self.Y, self.X
-        for i in range(len(self.X)):
-            self.X[i] = self.Y[i] * self.X[i]
-        result = np.dot(self.X, w)
-        val = np.where(result < 1)  # find each val <1 and create index for those
-
-        self.sv['X'] = self.X[val[0]]  # get the index with true
-        self.sv['Y'] = self.Y[val[0]]
-
-    # def findSV(self):
-    #     for i in range(0, len(self.X)):
-    #         if self.isSV(self.Y[i], self.X[i]):
-    #             if i == 0:
-    #                 self.sv['X'][0] = self.X[i]
-    #                 self.sv['label'][0] = self.Y[i]
-    #             else:
-    #                 self.sv['X'] = np.vstack((self.sv['X'], self.X[i]))
-    #                 self.sv['label'] = np.append(self.sv['label'], self.Y[i])
-
-    '''
-    X: (nd array) samples for prediction
-    returns 1d array predicted labels
-
-    use self.coef_[0], self.intercept_[0] for prediction   
-    '''
-
-    def predict(self, X):  # only predict class -1(others) or class 1(setosa)
+    def predict(self, X):  # only predict class -1(others) or class 1(setosa) TODO: Debug predict
         p = self.w.transpose() * X
         # scalar vector confused
         y_hat = p + self.b
@@ -127,27 +164,36 @@ class Linear_SVC:
         for y in y_hat:
             one = np.ones(y.shape)
             if np.all(np.greater_equal(y, one)):
-                predict_array.append(0)
+                predict_array.append(1)  # iris
             else:
-                predict_array.append(1)
+                predict_array.append(-1)  # others
         return predict_array
 
-    def cost(self, sv):
+    def cost(self, sv):  # works , do not touch
 
         return 0.5 * self.w.T.dot(self.w) + self.C * (
-                np.sum(1 - sv['X'].dot(self.w)) - self.b * np.sum(sv['label']))
+                np.sum(1 - sv['X'].dot(self.w)) - np.multiply(self.b, np.sum(sv['Y'])))
 
+
+from sklearn.datasets import load_iris
+import numpy as np
 
 data = load_iris()  # ndarray
-
+# print(data.target[[10, 25, 50]])
+# print(list(data.target_names))
 data_names = data.feature_names[2:4]
-X = data['data'][:, (2, 3)]  # petal length, petal width (150,2)
-# 2 type of iris: setosa(1) and others(-1)
-Y = (data['target'] == 2).astype(np.int)  # 0,1
+X = data['data'][:, (2, 3)]  # petal length, petal width
+Y = (data['target'] == 2).astype(np.int)  # 1 virginica ! , -1 not!
+
 for i in range(0, len(Y)):
     if Y[i] == 0:
         Y[i] = -1
-target_names = data.target_names
+# print(X)
+# print(Y)
+
+# scale
+X_scale = scaler.fit_transform(X)
+X = X_scale
 
 
 def partition(features, target, t):
@@ -204,27 +250,39 @@ X_train, y_train, X_test, y_test = partition(X, Y, 0.8)
 k = 5
 kfoldsData, kfoldsLabel = sPartition(k, X_train, y_train)
 
-learning_rate = []
-learning_rate_init = 0.01
+learning_rate = [0.1, 0.01, 0.001]
 max_iter = 1000
-tol = 0.001
+tol = [0.001, 0.0001, 0.00001, 0.000001, 0.0000001]
+C = [0, 1, 2, 3, 4, 5]  # around 5 pts are close and diff type in graph base on looking
 training_score = []
 validation_score = []
 
-# kfolds
-model = Linear_SVC(learning_rate_init=learning_rate_init, max_iter=max_iter, tol=tol, C=50)
-for i in range(0, len(kfoldsData)):
-    for j in range(0, len(kfoldsData)):
-        if i == j:
-            model.fit(kfoldsData[i], kfoldsLabel[i])
-        else:
-            prediction = model.predict(kfoldsData[i])  # -1 class0 1 class1 or -1 class1 1 class2
-            actual = kfoldsLabel[i]  # 2 type of iris: Iris-Virginica(1) and others(0)
-            print("i = %d" % i)
+print("result of model fit and predict with fold 0:\n\n")
+for i in range(0, len(learning_rate)):
+    for j in range(0, len(tol)):
+        for k in range(0, len(C)):
+            model = Linear_SVC(C=C[k], learning_rate_init=learning_rate[i], max_iter=max_iter, tol=tol[j])
+            # kfolds
+            # for i in range(0, len(kfoldsData)):
+            #     for j in range(0, len(kfoldsData)):
+            #         if i == j:
+            print("learning rate = %d, tolerance = %d, c=%d " % (learning_rate[i], tol[j], C[k]))
+            model.fit(kfoldsData[0], kfoldsLabel[0])
+            print("model finish fitting, ready for predicting:")
+            # else:
+            prediction = model.predict(kfoldsData[0])  # -1 class0 1 class1 or -1 class1 1 class2
+            actual = kfoldsLabel[0]  # 2 type of iris: Iris-Virginica(1) and others(0)
+
             print("input X:")
-            print(kfoldsData[i])
+            print(kfoldsData[0])
             print("prediction:")
             print(prediction)
             print("actual:")
             print(actual)
-            print("\n\n")
+            print("======================================\n")
+            # (tn, fp, fn, tp) = createCFmatrix(actual, prediction)
+            # precision_val = getPrecision(tp, fp)
+            # recall_val = getRecall(tp, fn)
+            # fone_val = getFoneScore(tp, fn, fp)
+            # accuracy_val, generror = getAccuacy_and_GenError(len(prediction), tp + tn,
+            #                                                  fp + fn)  # total_predicts,yes,no
