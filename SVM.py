@@ -142,13 +142,21 @@ class Linear_SVC:
         costarray.append(math.inf)
 
         for i in range(0, self.max_iter):  # for loop works, do not touch
+
+            if self.learning_rate_type == 'adaptive':
+                self.learning_rate = self.t_0 / (self.max_iter + self.t_1)
+
+            if i > 0 and costarray[i] > costarray[i - 1] - self.tol:
+                print("optimal w:")
+                print(self.w)
+                break
+
             self.findSV()
             cost = np.sum(self.cost(self.sv))
             dw_J = np.subtract(self.w, self.C * np.sum(self.sv['X'], axis=0))
             db_J = -self.C * np.sum(self.sv['Y'])
             self.w -= self.learning_rate * dw_J
             self.b -= self.learning_rate * db_J
-
             costarray.append(cost)
 
     def findSV(self):  # DO NOT TOUCH, WORKS
@@ -245,6 +253,34 @@ def sPartition(k, data, labels):
     return kfoldsData, kfoldsLabel
 
 
+# plot the decision boundary and show the support vectors
+def decision_boundary_support_vectors(coef, intercept, X, model):
+    xmin, xmax = X.min() - 1, X.max() + 1
+
+    w = coef
+    b = intercept
+
+    # At the decision boundary, w1*x1 + w2*x2 + b = 0
+    # => x2 = -(b + w1* x1)/w1
+    x1 = np.linspace(xmin, xmax, 100)
+
+    decision_boundary = -(b + np.array([w[0]]) * x1) / np.array([w[1]])
+
+    shifting_factor_for_margin = 1 / w[1]
+    upper_margin = decision_boundary + shifting_factor_for_margin
+    lower_margin = decision_boundary - shifting_factor_for_margin
+
+    svs = model.sv
+    plt.scatter(svs['X'][:, 0], svs['Y'], s=200, facecolors='g', label="Support Vectors")
+    plt.plot(x1, decision_boundary, "k-", linewidth=2)
+    plt.plot(x1, upper_margin, "k--", linewidth=2)
+    plt.plot(x1, lower_margin, "k--", linewidth=2)
+    wString = "w = " + np.array2string(w, precision=3, separator=',')
+    bString = " b = " + np.array2string(b, precision=3, separator=',')
+    functionString = wString + bString
+    print(functionString)
+
+
 X_train, y_train, X_test, y_test = partition(X, Y, 0.8)
 
 k = 5
@@ -253,36 +289,65 @@ kfoldsData, kfoldsLabel = sPartition(k, X_train, y_train)
 learning_rate = [0.1, 0.01, 0.001]
 max_iter = 1000
 tol = [0.001, 0.0001, 0.00001, 0.000001, 0.0000001]
-C = [0, 1, 2, 3, 4, 5]  # around 5 pts are close and diff type in graph base on looking
+C = [1, 2, 5, 8, 13, 17, 21, 25, 30, 32, 36, 43, 47, 51, 53, 57, 63, 67, 71, 74, 77, 83, 86, 91, 94,
+     97, 100]  # 0.1< c < 100
 training_score = []
 validation_score = []
 
+model = Linear_SVC()
 print("result of model fit and predict with fold 0:\n\n")
 for i in range(0, len(learning_rate)):
     for j in range(0, len(tol)):
         for k in range(0, len(C)):
             model = Linear_SVC(C=C[k], learning_rate_init=learning_rate[i], max_iter=max_iter, tol=tol[j])
             # kfolds
-            # for i in range(0, len(kfoldsData)):
-            #     for j in range(0, len(kfoldsData)):
-            #         if i == j:
-            print("learning rate = %d, tolerance = %d, c=%d " % (learning_rate[i], tol[j], C[k]))
-            model.fit(kfoldsData[0], kfoldsLabel[0])
-            print("model finish fitting, ready for predicting:")
-            # else:
-            prediction = model.predict(kfoldsData[0])  # -1 class0 1 class1 or -1 class1 1 class2
-            actual = kfoldsLabel[0]  # 2 type of iris: Iris-Virginica(1) and others(0)
+            for i1 in range(0, len(kfoldsData)):
+                for j1 in range(0, len(kfoldsData)):
+                    if i1 == j1:
+                        print("learning rate = %.3f, tolerance = %.7f, c = %.2f " % (learning_rate[i], tol[j], C[k]))
+                        model.fit(kfoldsData[i1], kfoldsLabel[j1])
+                        print("model finish fitting, ready for predicting:")
+                    else:
+                        decision_boundary_support_vectors(coef=model.w, intercept=model.b, X=X, model=model)
+                        prediction = model.predict(kfoldsData[i1])  # -1 class0 1 class1 or -1 class1 1 class2
+                        actual = kfoldsLabel[j1]  # 2 type of iris: Iris-Virginica(1) and others(0)
+                        print("input X:")
+                        print(kfoldsData[i1])
+                        print("prediction:")
+                        print(prediction)
+                        print("actual:")
+                        print(actual)
+                        (tn, fp, fn, tp) = createCFmatrix(actual, prediction)
+                        print("tn: %d, fp: %d, fn: %d, tp: %d\n" % (tn, fp, fn, tp))
+                        precision_val = getPrecision(tp, fp)
+                        recall_val = getRecall(tp, fn)
+                        fone_val = getFoneScore(tp, fn, fp)
+                        accuracy_val, generror = getAccuacy_and_GenError(len(prediction), tp + tn,
+                                                                         fp + fn)  # total_predicts,yes,no
+                        print("precision: %f\nrecall: %f\nfone: %f\naccuracy: %f\ngenerror: %f\n" % (
+                            precision_val, recall_val, fone_val, accuracy_val, generror))
+                        print("======================================\n")
 
-            print("input X:")
-            print(kfoldsData[0])
-            print("prediction:")
-            print(prediction)
-            print("actual:")
-            print(actual)
-            print("======================================\n")
-            # (tn, fp, fn, tp) = createCFmatrix(actual, prediction)
-            # precision_val = getPrecision(tp, fp)
-            # recall_val = getRecall(tp, fn)
-            # fone_val = getFoneScore(tp, fn, fp)
-            # accuracy_val, generror = getAccuacy_and_GenError(len(prediction), tp + tn,
-            #                                                  fp + fn)  # total_predicts,yes,no
+plt.figure(figsize=(16, 8))
+plt.plot(X[:, 0][Y == -1], X[:, 1][Y == -1], "go", label="others")
+plt.plot(X[:, 0][Y == 1], X[:, 1][Y == 1], "bo", label="Iris-Virginica")
+plt.title("iris class distribution", fontsize=18)
+plt.legend(loc=2)
+plt.xlabel("petal length", fontsize=12)
+plt.ylabel("petal width", rotation=90, fontsize=12)
+
+# coef = np.array([[-2.95906909, -2.8766881]])
+# intercept = np.array([-7.190000000000005])
+# coef = np.array([[-8.5628039, -8.12758183]])
+# intercept = np.array([-4.8])
+# coef = np.array([[7.72915036, 7.10155486]])
+# intercept = np.array([-4.2])
+# coef = np.array([[8.24442705, 7.57499185]]) #接近
+# intercept = np.array([-4.48])
+# coef = np.array([[-11.93058647, -11.33177847]]) #完全不行
+# intercept = np.array([-26.840000000000018])
+
+plt.xticks([0, 1, 2, 3, 4, 5, 6, 7])
+plt.yticks([0, 0.5, 1, 1.5, 2, 2.5, 3])
+plt.grid(True, linestyle='-.')
+plt.show()
