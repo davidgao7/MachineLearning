@@ -5,13 +5,13 @@
 
 # TASK 1. display the game
 from __future__ import print_function
-import pygame
+import pygame # when run, use <python3> instead of <python>
 import os
 
 # initialize the pygame
 pygame.init()
 # create pygame screen
-WINDOW_WIDTH = 600
+WINDOW_WIDTH = 500
 WINDOW_HEIGHT = 800
 
 # load frames
