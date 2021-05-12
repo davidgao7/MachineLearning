@@ -93,11 +93,15 @@ class Bird:
         elif self.y < 0:  # "player" not handling the bird , bird die
             self.alive = False
             self.y -= 2
-
-        else:  # "player" decide to move and not hitting boundary condition, bird move up
-            self.y = self.y + d
-            if self.tilt > -90:
-                self.tilt -= Bird.ROTATE_VELOCITY
+        
+        self.y = self.y + d
+        
+        if d < 0 or self.y < self.y + 50: #tilt up
+            if self.tilt < Bird.TILT_DEGREES:
+                self.tilt = Bird.TILT_DEGREES
+        
+        elif self.tilt > -90:
+            self.tilt -= Bird.ROTATE_VELOCITY
 
     def animate(self, game_window):
         self.img_count += 1
@@ -109,6 +113,8 @@ class Bird:
         if self.tilt == -90:
             self.img = BirdIMG[1]
 
+        self.move()
+        
         # actual rotation for the bird, rotate bird around its center
         rotate_img(
             img=self.img,
@@ -130,6 +136,7 @@ def run(path):
                 quit()
         
         draw_window(DISPLAY_WINDOW, bird)
+        draw_bird_window(DISPLAY_WINDOW, bird)
 
 
 if __name__ == "__main__":
