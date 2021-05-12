@@ -126,10 +126,33 @@ class Bird:
     def get_mask(self):
         return pygame.mask.from_surface(self.img)
 
+class Base:
+    
+    VEL = 1 # since Base and Pipe are on rest frame
+    WIDTH = SUBIMG["Base_frame"].get_width() # need to fill the world with ground...
+    
+    def __init__(self, y):
+        self.y = y
+        self.left = 0
+        self.right = Base.WIDTH # since base not actually moving
+    
+    def move(self): # scroll the image to express displacement, same with pipe
+        self.left  -= Base.VEL # since base move from right to left
+        self.right -= Base.VEL
+        
+        # 1 cycle done, need redraw
+        if self.left + Base.WIDTH < 0: # left is out of scope
+            self.left = self.right + Base.WIDTH
+        if self.right + Base.WIDTH < 0: # right is out of scope
+            self.right = self.left + Base.WIDTH
+    
+    def animate(self, window):
+        window.blit(SUBIMG["Base_frame"], (self.left,self.y))
+        window.blit(SUBIMG["Base_frame"], (self.right,self.y))
 
 def run(path):
     bird = Bird(x=200, y=200)
-
+    base = Base(730)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -137,6 +160,9 @@ def run(path):
         
         draw_window(DISPLAY_WINDOW, bird)
         draw_bird_window(DISPLAY_WINDOW, bird)
+
+        base.move()
+        draw_base_window(DISPLAY_WINDOW, base)
 
 
 if __name__ == "__main__":
