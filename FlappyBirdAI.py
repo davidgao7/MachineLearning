@@ -7,6 +7,9 @@
 from __future__ import print_function
 import pygame # when run, use <python3> instead of <python>
 import os
+import time
+import random
+import neat
 
 # initialize the pygame
 pygame.init()
@@ -39,11 +42,16 @@ SUBIMG = {
 }
 
 
-def draw_window(game_window, bird):
+def draw_bird_window(game_window, bird):
     game_window.blit(SUBIMG["Background_frame"], (0, 0))
     bird.animate(game_window)
     pygame.display.update()
 
+def draw_pipe_window(game_window, pipe):
+    game_window.blit(SUBIMG["Background_frame"], (0, 0))
+    pipe.set_height()
+    pipe.animate(game_window)
+    pygame.display.update()
 
 def rotate_img(img, surf, topLeft, angle):
     rotated_img = pygame.transform.rotate(img, angle)
@@ -53,6 +61,7 @@ def rotate_img(img, surf, topLeft, angle):
 
 # for later AI bird generations updating, we need a container to hold info which need tobe updated
 class Bird:
+    
     TILT_DEGREES = 25  # how much bird tilt each move
     ROTATE_VELOCITY = 20  # how fast the bird img rotate each frame
     ANIMATION_TIME = 5  # how fast the bird will flap its wings in the frames
