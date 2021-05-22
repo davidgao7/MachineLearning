@@ -1,0 +1,4 @@
+enable conda package manager:
+conda activate
+opposite:
+conda deactivate
