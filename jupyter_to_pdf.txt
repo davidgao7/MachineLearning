@@ -1,1 +1,40 @@
 jupyter nbconvert --to pdf notebook_you_want.ipynb
+
+HTML,[--to html]
+
+LaTeX,[--to latex]
+
+PDF,[--to pdf]
+
+WebPDF,[--to webpdf]
+
+Reveal.js HTML slideshow,[--to slides]
+
+Markdown,[--to markdown]
+
+Ascii,[--to asciidoc]
+
+reStructuredText,[--to rst]
+
+executable script,[--to script](simplest way to get a Python(or other language depending on the kernel))
+
+notebook. (create a new notebook and run it, then convert to notebook formats)
+--inplace: overwrite input file instead of create new file
+--execute --allow-errors: conversion will continue and the output from any exception will be included in the cell output
+ex. [jupyter nbconvert --to notebook --nbformat 3 mynotebook] will create a copy of mynotebook.ipynb in mynotebook.v3.ipynb in version 3 of the notebook format
+
+Multiple notebooks can be specified from the command line:
+$ jupyter nbconvert notebook*.ipynb
+$ jupyter nbconvert notebook1.ipynb notebook2.ipynb
+
+or via a list in a configuration file, say mycfg.py, containing the text:
+
+mycfg.py:
+c = get_config()
+c.NbConvertApp.notebooks = ["notebook1.ipynb", "notebook2.ipynb"]
+
+and using the command:
+
+$ jupyter nbconvert --config mycfg.py
+
+more format at https://nbconvert.readthedocs.io/en/latest/usage.html
