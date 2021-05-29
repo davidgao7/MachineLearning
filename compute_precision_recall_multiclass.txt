@@ -1,0 +1,3 @@
+TP, TN, etc. are defined for two-class problems.  If you have a 10-class problem, the notions of positive and negative don't apply, since those are just names of classes.  
+
+If you want to use TP, etc. (say, to compute precision-recall), then you have to choose one class (e.g., "3" in MNIST) to be "positive" and designate the rest as "negative".  This is sometimes called "one-versus-rest". 
