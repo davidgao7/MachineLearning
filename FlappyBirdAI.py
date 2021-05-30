@@ -168,6 +168,8 @@ def run(path):
 
         base.move()
         draw_base_window(DISPLAY_WINDOW, base)
+        base.move() #update base position (act like velocity)
+        draw_base_window(DISPLAY_WINDOW, base) # WORK
 
 
 if __name__ == "__main__":
@@ -177,4 +179,4 @@ if __name__ == "__main__":
 
 import time
 import random
-import neat
+import neat    
