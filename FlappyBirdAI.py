@@ -176,7 +176,5 @@ if __name__ == "__main__":
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, "config-FeedForward.txt")  # parameter need to tune
     run(config_path)
-
-import time
-import random
-import neat    
+    
+    
