@@ -174,7 +174,7 @@ class Pipe():
 
 class Base:
     
-    VEL = 1 # since Base and Pipe are on rest frame
+    VEL = 5 # since Base and Pipe are on rest frame (need to same velocity as pipe)
     WIDTH = SUBIMG["Base_frame"].get_width() # need to fill the world with ground...
     
     def __init__(self, y):
