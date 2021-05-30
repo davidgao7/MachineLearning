@@ -53,6 +53,11 @@ def draw_pipe_window(game_window, pipe):
     pipe.animate(game_window)
     pygame.display.update()
 
+def draw_base_window(game_window, base):
+    game_window.blit(SUBIMG["Background_frame"], (0, 0))
+    base.animate(game_window)
+    pygame.display.update()
+
 def rotate_img(img, surf, topLeft, angle):
     rotated_img = pygame.transform.rotate(img, angle)
     new_rect = rotated_img.get_rect(center=img.get_rect(topleft=topLeft).center)
