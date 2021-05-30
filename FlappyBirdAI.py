@@ -41,22 +41,23 @@ SUBIMG = {
             os.path.join("imgs", "/Users/tengjungao/PycharmProjects/MachineLearning/bg.png")).convert_alpha())
 }
 
+def update_screen():
+    pygame.display.update()
 
 def draw_bird_window(game_window, bird):
     game_window.blit(SUBIMG["Background_frame"], (0, 0))
     bird.animate(game_window)
-    pygame.display.update()
+
 
 def draw_pipe_window(game_window, pipe):
     game_window.blit(SUBIMG["Background_frame"], (0, 0))
-    pipe.set_height()
     pipe.animate(game_window)
-    pygame.display.update()
+
 
 def draw_base_window(game_window, base):
     game_window.blit(SUBIMG["Background_frame"], (0, 0))
     base.animate(game_window)
-    pygame.display.update()
+
 
 def rotate_img(img, surf, topLeft, angle):
     rotated_img = pygame.transform.rotate(img, angle)
@@ -131,6 +132,46 @@ class Bird:
     def get_mask(self):
         return pygame.mask.from_surface(self.img)
 
+class Pipe():
+    
+    GAP = 200 # the gap between top pipe and bottom pipe
+    VEL = 5 # how fast the pipe moving from right to left of screen
+    
+    def __init__(self,x):
+        self.x = x
+        self.height = 0
+        
+        self.top_len = 0
+        self.bottom_len = 0
+        
+        # flip the bottom pipe img vertically
+        self.PIPE_TOP = pygame.transform.flip(SUBIMG["Pipe_frame"],False,True) # flip(Surface, xbool, ybool)
+        self.PIP_BOTTOM = SUBIMG["Pipe_frame"]
+        
+        # inital pipe height
+        self.set_height()
+
+    
+    def set_height(self):
+        # generate top pipe and bottom pipe pair with different gap
+        self.height = random.randrange(50, 450)
+        self.bottom_len = self.height - self.PIPE_TOP.get_height()
+        self.top_len = self.height + Pipe.GAP
+    
+    def move(self):
+        # move pipe with given velocity
+        self.x -= Pipe.VEL # every pipe moves left with the same velocity
+    
+    def animate(self, window):
+        # similar to how we draw bird, we draw random pipe on both sides of up/down screen
+        window.blit(self.PIPE_TOP, (self.x, self.top_len)) # for drawing the top pipe
+        window.blit(self.PIP_BOTTOM, (self.x, self.bottom_len)) # for drawing the bottom pipe
+
+    # IMPORTANT: now we need to consider the colision, we need a flag to signal once 
+    # a bird die
+    def colide(args):
+        pass
+
 class Base:
     
     VEL = 1 # since Base and Pipe are on rest frame
@@ -158,18 +199,27 @@ class Base:
 def run(path):
     bird = Bird(x=200, y=200)
     base = Base(730)
+    pipes = [Pipe(700), Pipe(500), Pipe(300), Pipe(700)]
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
-        
-        draw_window(DISPLAY_WINDOW, bird)
-        draw_bird_window(DISPLAY_WINDOW, bird)
 
-        base.move()
-        draw_base_window(DISPLAY_WINDOW, base)
-        base.move() #update base position (act like velocity)
-        draw_base_window(DISPLAY_WINDOW, base) # WORK
+        # TODO: pipe move not working
+        # generate multiple pipes
+        for pipe in pipes:
+            # if the pipe are off the screen, put it in trash and remove all in once
+            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                del(pipe)
+            else:
+                pipe.move() # update pipe position
+                draw_pipe_window(DISPLAY_WINDOW, pipe) # draw each pipe
+        
+        # base.move() # update base position (act like velocity)
+        # draw_bird_window(DISPLAY_WINDOW, bird)
+        # draw_base_window(DISPLAY_WINDOW, base) # update base
+        update_screen() # update the screen after drawing everything
 
 
 if __name__ == "__main__":
