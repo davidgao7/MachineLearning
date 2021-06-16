@@ -1,5 +1,5 @@
 # develop a flappy phoenix using pygame and NN!
-
+# reference: https://github.com/techwithtim/NEAT-Flappy-Bird/blob/master/flappy_bird.py
 # TODO: 2. know what variable AI should control in the game
 # TODO: 3. design a algorithm and perform learning!
 
@@ -22,11 +22,16 @@ DISPLAY_WINDOW = pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])  # set m
 
 BirdIMG = [
     pygame.transform.scale2x(
-        pygame.image.load(os.path.join("imgs", "/Users/tengjungao/PycharmProjects/MachineLearning/bird1.png"))),
-    pygame.transform.scale2x(
-        pygame.image.load(os.path.join("imgs", "/Users/tengjungao/PycharmProjects/MachineLearning/bird2.png"))),
-    pygame.transform.scale2x(
-        pygame.image.load(os.path.join("imgs", "/Users/tengjungao/PycharmProjects/MachineLearning/bird3.png")))
+        pygame.image.load(
+            os.path.join("imgs", "/Users/tengjungao/PycharmProjects/MachineLearning/bird"+str(x)+".png")
+        )
+    )for x in range(1,4) # easier way to write following three
+    # pygame.transform.scale2x(
+    #     pygame.image.load(os.path.join("imgs", "/Users/tengjungao/PycharmProjects/MachineLearning/bird1.png"))),
+    # pygame.transform.scale2x(
+    #     pygame.image.load(os.path.join("imgs", "/Users/tengjungao/PycharmProjects/MachineLearning/bird2.png"))),
+    # pygame.transform.scale2x(
+    #     pygame.image.load(os.path.join("imgs", "/Users/tengjungao/PycharmProjects/MachineLearning/bird3.png")))
 ]
 
 SUBIMG = {
