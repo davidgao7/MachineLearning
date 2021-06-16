@@ -97,14 +97,16 @@ class Bird:
         self.time += 1  # track the time
         d = self.velocity * self.time + 0.5 * self.bird_vel * self.time ** 2  # how the bird move(recall free fall equation: delta x = v0*t + 0.5*a*t^2) plus sign since pixel(0,0) start at the top left
 
-        if self.y + d >= Bird.MAX_VISIBLE_PIXIELS_HEIGHT:  # once user makes bird to jump to the top of the screen and still want to jump, keep the bird in the same height
-            self.y = Bird.MAX_VISIBLE_PIXIELS_HEIGHT
-            self.tilt = Bird.TILT_DEGREES  # tilt up
+        # downard displacement
+        d = self.velocity * self.time + 0.5 * self.bird_vel * (self.time ** 2)  # how the bird move(recall free fall equation: delta x = v0*t + 0.5*a*t^2) plus sign since pixel(0,0) start at the top left
+
+        if d >= Bird.MAX_VISIBLE_PIXIELS_HEIGHT:  # once user makes bird to jump to the top of the screen and still want to jump, keep the bird in the same height
+            d = (d/abs(d)) * Bird.MAX_VISIBLE_PIXIELS_HEIGHT
 
         elif self.y < 0:  # "player" not handling the bird , bird die
             self.alive = False
-            self.y -= 2
-        
+            d -= 2
+
         self.y = self.y + d
         
         if d < 0 or self.y < self.y + 50: #tilt up
