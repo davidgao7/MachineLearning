@@ -72,8 +72,8 @@ def rotate_img(img, surf, topLeft, angle):
 
 # for later AI bird generations updating, we need a container to hold info which need tobe updated
 class Bird:
-    
-    TILT_DEGREES = 25  # how much bird tilt each move
+
+    MAX_ROTATION = 25  # how much bird tilt each move
     ROTATE_VELOCITY = 20  # how fast the bird img rotate each frame
     ANIMATION_TIME = 5  # how fast the bird will flap its wings in the frames
     MAX_VISIBLE_PIXIELS_HEIGHT = 16  # maximum vertial range you can see the game
@@ -108,9 +108,9 @@ class Bird:
         self.y = self.y + d
         
         if d < 0 or self.y < self.y + 50: #tilt up
-            if self.tilt < Bird.TILT_DEGREES:
-                self.tilt = Bird.TILT_DEGREES
-        
+            if self.tilt < Bird.MAX_ROTATION:
+                self.tilt = Bird.MAX_ROTATION
+
         elif self.tilt > -90:
             self.tilt -= Bird.ROTATE_VELOCITY
 
