@@ -88,14 +88,15 @@ class Bird:
         self.img = BirdIMG[0]
         self.bird_vel = 3
         self.alive = True
+        self.height = self.y
 
     def jump(self):
         self.velocity = -10.5  # since going down is negative
         self.time = 0
+        self.height = self.y
 
     def move(self):
         self.time += 1  # track the time
-        d = self.velocity * self.time + 0.5 * self.bird_vel * self.time ** 2  # how the bird move(recall free fall equation: delta x = v0*t + 0.5*a*t^2) plus sign since pixel(0,0) start at the top left
 
         # downard displacement
         d = self.velocity * self.time + 0.5 * self.bird_vel * (self.time ** 2)  # how the bird move(recall free fall equation: delta x = v0*t + 0.5*a*t^2) plus sign since pixel(0,0) start at the top left
@@ -108,7 +109,7 @@ class Bird:
             d -= 2
 
         self.y = self.y + d
-        
+
         if d < 0 or self.y < self.y + 50: #tilt up
             if self.tilt < Bird.MAX_ROTATION:
                 self.tilt = Bird.MAX_ROTATION
@@ -127,7 +128,7 @@ class Bird:
             self.img = BirdIMG[1]
 
         self.move()
-        
+
         # actual rotation for the bird, rotate bird around its center
         rotate_img(
             img=self.img,
@@ -140,35 +141,35 @@ class Bird:
         return pygame.mask.from_surface(self.img)
 
 class Pipe():
-    
+
     GAP = 200 # the gap between top pipe and bottom pipe
     VEL = 5 # how fast the pipe moving from right to left of screen
-    
+
     def __init__(self,x):
         self.x = x
         self.height = 0
-        
+
         self.top_len = 0
         self.bottom_len = 0
-        
+
         # flip the bottom pipe img vertically
         self.PIPE_TOP = pygame.transform.flip(SUBIMG["Pipe_frame"],False,True) # flip(Surface, xbool, ybool)
         self.PIP_BOTTOM = SUBIMG["Pipe_frame"]
-        
+
         # inital pipe height
         self.set_height()
 
-    
+
     def set_height(self):
         # generate top pipe and bottom pipe pair with different gap
         self.height = random.randrange(50, 450)
-        self.bottom_len = self.height - self.PIPE_TOP.get_height()
-        self.top_len = self.height + Pipe.GAP
-    
+        self.top_len = self.height - self.PIPE_TOP.get_height()
+        self.bottom_len = self.height + Pipe.GAP
+
     def move(self):
         # move pipe with given velocity
         self.x -= Pipe.VEL # every pipe moves left with the same velocity
-    
+
     def animate(self, window):
         # similar to how we draw bird, we draw random pipe on both sides of up/down screen
         window.blit(self.PIPE_TOP, (self.x, self.top_len)) # for drawing the top pipe
