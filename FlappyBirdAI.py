@@ -12,13 +12,14 @@ import random
 import neat
 
 # initialize the pygame
-pygame.init()
+pygame.font.init()
 # create pygame screen
 WINDOW_WIDTH = 500
 WINDOW_HEIGHT = 800
 
 # load frames
 DISPLAY_WINDOW = pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])  # set mode need to be before converting images
+pygame.display.set_caption("Flappy Bird")
 
 BirdIMG = [
     pygame.transform.scale2x(
