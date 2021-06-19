@@ -14,7 +14,7 @@ import neat
 # initialize the pygame
 pygame.font.init()
 # create pygame screen
-WINDOW_WIDTH = 500
+WINDOW_WIDTH = 600
 WINDOW_HEIGHT = 800
 
 # load frames
