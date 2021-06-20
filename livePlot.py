@@ -21,23 +21,23 @@ def func1(x):
 
 
 def func2(x):
-    return math.exp(x)
+    return x ** 2.5
 
 
 def animate(index):
     xs.append(index)
     ys.append(func1(index))
     yss.append(func2(index))
-    index += 1
 
     plt.cla()  # update plot with same color line
 
     plt.plot(xs, ys, label='x^2')
-    plt.plot(xs, yss, label='log_2(x)')
+    plt.plot(xs, yss, label='x^2.5')
 
     plt.legend(loc='upper left')
 
 
-ani = animation.FuncAnimation(plt.gcf(), animate, interval=1000)  # 1000ms = 1s
-plt.tight_layout()  # smooth padding
+data = np.arange(100).tolist()
+ani = animation.FuncAnimation(plt.gcf(), animate, data, interval=1000)  # 1000ms = 1s
+# plt.tight_layout()  # smooth padding, smooth the graph, not necessary in this case
 plt.show()
