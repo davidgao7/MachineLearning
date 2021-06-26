@@ -177,8 +177,20 @@ class Pipe():
 
     # IMPORTANT: now we need to consider the colision, we need a flag to signal once 
     # a bird die
-    def colide(args):
-        pass
+    def colide(self, bird, window):
+        bird_mask = bird.get_mask()
+        top_mask  = pygame.mask.from_surface(self.PIPE_TOP)
+        bottom_mask=pygame.mask.from_surface(self.PIP_BOTTOM)
+        top_offset = (self.x - bird.x, self.top_len - round(bird.y))
+        bottom_offset = (self.x - bird.x, self.bottom_len - round(bird.y))
+
+        b_pt = bird_mask.overlap(bottom_mask, bottom_offset)
+        t_pt = bird_mask.overlap(top_mask, top_offset)
+
+        if b_pt or t_pt:
+            return True
+
+        return False
 
 class Base:
     
