@@ -19,6 +19,7 @@ WINDOW_HEIGHT = 800
 
 # load frames
 DISPLAY_WINDOW = pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])  # set mode need to be before converting images
+DISPLAY_WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))  # set mode need to be before converting images
 pygame.display.set_caption("Flappy Bird")
 
 BirdIMG = [
@@ -64,6 +65,7 @@ def draw_base_window(game_window, base):
     game_window.blit(SUBIMG["Background_frame"], (0, 0))
     base.animate(game_window)
 
+DISPLAY_WINDOW.blit(SUBIMG["Background_frame"], (0, 0))
 
 def rotate_img(img, surf, topLeft, angle):
     rotated_img = pygame.transform.rotate(img, angle)
