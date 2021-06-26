@@ -88,8 +88,6 @@ class Bird:
         self.img_count = 0
         self.img = BirdIMG[0]
         self.bird_vel = 3
-        self.alive = True
-        self.height = self.y
 
     def jump(self):
         self.velocity = -10.5  # since going down is negative
@@ -106,7 +104,6 @@ class Bird:
             d = (d/abs(d)) * Bird.MAX_VISIBLE_PIXIELS_HEIGHT
 
         elif self.y < 0:  # "player" not handling the bird , bird die
-            self.alive = False
             d -= 2
 
         self.y = self.y + d
