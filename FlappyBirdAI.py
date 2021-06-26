@@ -175,7 +175,7 @@ class Pipe():
         window.blit(self.PIPE_TOP, (self.x, self.top_len)) # for drawing the top pipe
         window.blit(self.PIP_BOTTOM, (self.x, self.bottom_len)) # for drawing the bottom pipe
 
-    # IMPORTANT: now we need to consider the colision, we need a flag to signal once 
+    # IMPORTANT: now we need to consider the colision, we need a flag to signal once
     # a bird die
     def colide(self, bird, window):
         bird_mask = bird.get_mask()
@@ -193,10 +193,10 @@ class Pipe():
         return False
 
 class Base:
-    
+
     VEL = 5 # since Base and Pipe are on rest frame (need to same velocity as pipe)
     WIDTH = SUBIMG["Base_frame"].get_width() # need to fill the world with ground...
-    
+
     def __init__(self, y):
         self.y = y
         self.left = 0
@@ -222,6 +222,19 @@ def run(path):
     pipes = [Pipe(700), Pipe(500), Pipe(300), Pipe(700)]
     
     while True:
+def draw_bird_window(game_window, bird):
+    # game_window.blit(SUBIMG["Background_frame"], (0, 0))
+    bird.animate(game_window)
+
+
+def draw_pipe_window(game_window, pipe):
+    # game_window.blit(SUBIMG["Background_frame"], (0, 0))
+    pipe.animate(game_window)
+
+
+def draw_base_window(game_window, base):
+    # game_window.blit(SUBIMG["Background_frame"], (0, 0))
+    base.animate(game_window)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
