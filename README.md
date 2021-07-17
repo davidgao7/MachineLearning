@@ -1,8 +1,9 @@
-# Solving Jupyter Notebook Rendering Issue
-If github in unable to render a Jupyter notebook, copy the link of the notebook and enter into the nbviewer: https://nbviewer.jupyter.org/
-
 # MachineLearning
 Machine learning &amp; Deep learning resources
+
+## Reading the Notebook in webpage
+- If you encounter the Jupyter Notebook Rendering Issue
+  * If github in unable to render a Jupyter notebook, copy the link of the notebook and enter into the nbviewer: https://nbviewer.jupyter.org/
 
 ## Environment Setup
 - After pulling the repo, cd into the directory using 
