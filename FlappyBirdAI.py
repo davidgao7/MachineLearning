@@ -95,6 +95,7 @@ class Bird:
         self.velocity = -10.5  # since going down is negative
         self.time = 0
         self.height = self.y
+        self.move()
 
     def move(self):
         self.time += 1  # track the time
